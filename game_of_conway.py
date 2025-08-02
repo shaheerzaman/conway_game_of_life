@@ -9,6 +9,7 @@ NUM_PROCESSES = os.cpu_count() or 4
 
 
 def setup_shared_grid(size):
+    # shared memory
     shared_array_base = multiprocessing.Array("i", size * size, lock=False)
     grid = np.frombuffer(shared_array_base, dtype=np.int32).reshape((size, size))
     grid[:] = np.random.choice([0, 1], size=(size, size), p=[0.7, 0.3])
@@ -46,7 +47,7 @@ def worker_task(grid, start_row, end_row, barrier, generations):
                     local_next_state[r - start_row, c] = grid[r, c]
 
         barrier.wait()
-
+        # criticla section
         grid[start_row:end_row] = local_next_state
 
 
